@@ -3,13 +3,10 @@ package gov.kotkov.mikhail.exercise3.employee;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import gov.kotkov.mikhail.exercise3.util.Job;
-
 public abstract class Employee {
 
 	private final String firstName, lastName;
 	
-	private final Job job;
 	//wage for standard hours worked
 	private BigDecimal wageRate;
 	
@@ -19,9 +16,8 @@ public abstract class Employee {
 	//standard amount of hours employee has to work 
 	private static int standardWorkhours;
 	
-	public Employee(String firstName, String lastName, Job job, BigDecimal wageRate) {
+	public Employee(String firstName, String lastName, BigDecimal wageRate) {
 		validateName(firstName, lastName);
-		this.job = job;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.wageRate = wageRate.setScale(2, RoundingMode.HALF_UP);
@@ -52,26 +48,18 @@ public abstract class Employee {
 		Employee.standardWorkhours = standardWorkhours;
 	}
 	
+	public abstract BigDecimal calculateSalary();
+	
 	public double getWorkhoursPercentage() {
 		return ((double)actualWorkhours/standardWorkhours) * 100;
 	}
 
-	@Override
-	public String toString() {
-		return "Employee [firstName=" + firstName + ", lastName=" + lastName + ", job=" + job
-				+ ", wageRate=" + wageRate + ", actualWorkhours=" + actualWorkhours + "]";
-	}
-	
 	private void validateName(String firstName, String lastName) {
 		if(firstName.isEmpty() || lastName.isEmpty()) {
-			throw new IllegalArgumentException("Employee must have first and last names");
+			throw new IllegalArgumentException("Employee must have first and last name");
 		} else if(!firstName.chars().allMatch(Character::isLetter) || !lastName.chars().allMatch(Character::isLetter)) {
 			throw new IllegalArgumentException("Name must consist of alphabetic characters");
 		}
-	}
-
-	public Job getJob() {
-		return job;
 	}
 
 	public String getFirstName() {
@@ -91,11 +79,16 @@ public abstract class Employee {
 	}
 
 	@Override
+	public String toString() {
+		return "Employee [firstName=" + firstName + ", lastName=" + lastName + ", wageRate=" + wageRate
+				+ ", actualWorkhours=" + actualWorkhours + "]";
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
-		result = prime * result + ((job == null) ? 0 : job.hashCode());
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
 		return result;
 	}
@@ -113,8 +106,6 @@ public abstract class Employee {
 			if (other.firstName != null)
 				return false;
 		} else if (!firstName.equals(other.firstName))
-			return false;
-		if (job != other.job)
 			return false;
 		if (lastName == null) {
 			if (other.lastName != null)

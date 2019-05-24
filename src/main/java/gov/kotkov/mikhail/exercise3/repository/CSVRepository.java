@@ -14,7 +14,6 @@ import java.util.List;
 import gov.kotkov.mikhail.exercise3.employee.Employee;
 import gov.kotkov.mikhail.exercise3.employee.Manager;
 import gov.kotkov.mikhail.exercise3.employee.Programmer;
-import gov.kotkov.mikhail.exercise3.util.Job;
 
 public class CSVRepository implements Repository{
 
@@ -51,12 +50,21 @@ public class CSVRepository implements Repository{
 		}
 		if (file.isFile()) {
 			try(BufferedWriter csvWriter = new BufferedWriter(new FileWriter(file))) {
+				if(file.length() == 0) {
+					csvWriter.append("firstName,");
+					csvWriter.append("lastName,");
+					csvWriter.append("wageRate,");
+					csvWriter.append("actualWorkhours,");
+					csvWriter.append("job");
+					csvWriter.append(System.lineSeparator());
+					csvWriter.flush();
+				}
 				for(Employee employee : employees) {
 					csvWriter.append(employee.getFirstName() + ",");
 					csvWriter.append(employee.getLastName() + ",");
 					csvWriter.append(employee.getWageRate() + ",");
 					csvWriter.append(employee.getActualWorkhours() + ",");
-					csvWriter.append(employee.getJob().name());
+					csvWriter.append(employee.getClass().getSimpleName());
 					csvWriter.append(System.lineSeparator());
 				}
 				csvWriter.flush();
@@ -76,13 +84,15 @@ public class CSVRepository implements Repository{
 		if (file.isFile()) {
 			try(BufferedReader csvReader = new BufferedReader(new FileReader(file))) {
 				String line;
+				//skip header
+				csvReader.readLine();
 				while((line = csvReader.readLine()) != null) {
 					String[] data = line.split(",");
 					Employee employee = null;
-					switch(Job.valueOf(data[4])) {
-						case PROGRAMMER: employee = new Programmer(data[0], data[1], new BigDecimal(data[2]));
+					switch(data[4]) {
+						case "Programmer": employee = new Programmer(data[0], data[1], new BigDecimal(data[2]));
 						break;
-						case MANAGER: employee = new Manager(data[0], data[1], new BigDecimal(data[2]));
+						case "Manager": employee = new Manager(data[0], data[1], new BigDecimal(data[2]));
 						break;
 					}
 					employee.setActualWorkhours(Integer.parseInt(data[3]));
@@ -96,5 +106,4 @@ public class CSVRepository implements Repository{
 		}
 		return employees;
 	}
-
 }
